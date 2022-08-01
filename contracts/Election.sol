@@ -9,7 +9,8 @@ contract Election {
     }
     // bool to check if we are in elections
     bool canVote = false;
-
+    // Store voters who can vote
+    mapping(address => bool) public votersList;
     // Store accounts that have voted
     mapping(address => bool) public voters;
     // Store Candidates
@@ -26,7 +27,11 @@ contract Election {
         addCandidate("Candidate 2");
     }
 
-    function addCandidate(string _name) private {
+    function addVoter(string _address) public {
+        votersList[_address] = true;
+    }
+
+    function addCandidate(string _name) public {
         candidatesCount++;
         candidates[candidatesCount] = Candidate(candidatesCount, _name, 0);
     }
@@ -40,8 +45,10 @@ contract Election {
     }
 
     function vote(uint256 _candidateId) public {
-        // require that they haven't voted before
+        // require that they haven't voted before and they arein the voters list
+        require(votersList[msg.sender]);
         require(!voters[msg.sender]);
+        // require to be in poll time
         require(canVote);
         // require a valid candidate
         require(_candidateId > 0 && _candidateId <= candidatesCount);
